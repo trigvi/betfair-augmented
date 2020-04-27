@@ -7,8 +7,8 @@
 
 (function betfairAugmented() {
 
-    // If code was triggered already, do not trigger it again
-    if (document.getElementById("bfa-toolbar") != null) {
+    // If toolbar is there already: stop execution
+    if (document.getElementById("bfa-toolbar")) {
         return;
     }
 
@@ -16,31 +16,31 @@
     var toolbar = document.createElement("DIV");
     toolbar.setAttribute("id", "bfa-toolbar");
 
-    // Add button to toolbar: oneclick bet toggle
-    var node = document.createElement("BUTTON");
-    node.setAttribute("id", "bfa-oneclick-toggle");
-    node.onclick = bfaOneclickToggle;
-    toolbar.appendChild(node);
+    // Add button to toolbar: oneclick toggle
+    var el = document.createElement("BUTTON");
+    el.setAttribute("id", "bfa-oneclick-toggle");
+    el.onclick = bfaOneclickToggle;
+    toolbar.appendChild(el);
 
     // Add button to toolbar: direct/reverse toggle
-    var node = document.createElement("BUTTON");
-    node.setAttribute("id", "bfa-directreverse-toggle");
-    node.onclick = bfaDirectreverseToggle;
-    toolbar.appendChild(node);
+    var el = document.createElement("BUTTON");
+    el.setAttribute("id", "bfa-directreverse-toggle");
+    el.onclick = bfaDirectreverseToggle;
+    toolbar.appendChild(el);
 
     // Add field to toolbar: stake
-    var node = document.createElement("SPAN");
-    node.setAttribute("id", "bfa-stake-label");
-    node.innerHTML = "Stake:";
-    toolbar.appendChild(node);
+    var el = document.createElement("SPAN");
+    el.setAttribute("id", "bfa-stake-label");
+    el.innerHTML = "Stake:";
+    toolbar.appendChild(el);
 
-    var node = document.createElement("INPUT");
-    node.setAttribute("id", "bfa-stake");
-    node.setAttribute("type", "text");
-    node.setAttribute("value", (window.localStorage.getItem("bfaDefaultStake") || 2));
-    node.onchange = function() { window.localStorage.setItem("bfaDefaultStake", this.value); };
-    node.onkeyup = function() { window.localStorage.setItem("bfaDefaultStake", this.value); };
-    toolbar.appendChild(node);
+    var el = document.createElement("INPUT");
+    el.setAttribute("id", "bfa-stake");
+    el.setAttribute("type", "text");
+    el.setAttribute("value", (window.localStorage.getItem("bfaDefaultStake") || 2));
+    el.onchange = function() { window.localStorage.setItem("bfaDefaultStake", this.value); };
+    el.onkeyup = function() { window.localStorage.setItem("bfaDefaultStake", this.value); };
+    toolbar.appendChild(el);
 
     // Define css
     var style = document.createElement("STYLE");
@@ -67,13 +67,13 @@
 
     // Turn on oneclick
     toolbar.marketId = bfaGetMarketId();
-    bfaOneclickToggle();
-    bfaDirectreverseToggle(null, true);
+    bfaOneclickEnable(true);
 
-    // Detect user switching market: refresh oneclick binding
+    // Detect user switching market and apply toolbar
+    // settings to the new market
     var intervalId = setInterval(function(){
-        var toolbar = document.getElementById("bfa-toolbar");
 
+        var toolbar = document.getElementById("bfa-toolbar");
         if (toolbar == null || typeof toolbar == "undefined") {
             clearInterval(intervalId);
             return;
@@ -89,9 +89,19 @@
 
     //------------------------------------------------
 
-    function bfaOneclickBind()
+    function bfaOneclickEnable(forceDirect=false)
     {
+        var toolbar = document.getElementById("bfa-toolbar");
+        var oneclickBtn = document.getElementById("bfa-oneclick-toggle");
+        var directreverseBtn = document.getElementById("bfa-directreverse-toggle");
         var oddsCells = document.querySelectorAll("td[bet-selection-id]");
+
+        // Update toolbar
+        oneclickBtn.innerHTML = "One-click ON";
+        toolbar.classList.add("bfa-oneclick-on");
+        directreverseBtn.classList.remove("hidden");
+
+        // Bind oneclick listener to odds cells
         for (var i=0; i<oddsCells.length; i++) {
             var cell = oddsCells[i];
             if (cell.bfaAdded != true) {
@@ -99,19 +109,40 @@
                 cell.addEventListener("click", bfaOneclickListener);
             }
         }
+
+        // Set "Direct" betting
+        if (forceDirect) {
+            bfaDirectreverseToggle(null, true);
+        }
     }
 
 
     //------------------------------------------------
 
-    function bfaOneclickUnbind()
+    function bfaOneclickDisable()
     {
+        var toolbar = document.getElementById("bfa-toolbar");
+        var oneclickBtn = document.getElementById("bfa-oneclick-toggle");
+        var directreverseBtn = document.getElementById("bfa-directreverse-toggle");
         var oddsCells = document.querySelectorAll("td[bet-selection-id]");
+
+        // Update toolbar
+        oneclickBtn.innerHTML = "One-click OFF";
+        toolbar.classList.remove("bfa-oneclick-on");
+        directreverseBtn.classList.add("hidden");
+
+        // Unbind oneclick listener from odds cells
         for (var i=0; i<oddsCells.length; i++) {
             var cell = oddsCells[i];
             cell.bfaAdded = false;
             cell.removeEventListener("click", bfaOneclickListener);
         }
+
+        // Force "Direct" betting, as when we disable
+        // one-click we're basically restoring Betfair
+        // default functionality, which doesn't
+        // support "Reverse"
+        bfaDirectreverseToggle(null, true);
     }
 
 
@@ -120,25 +151,11 @@
     function bfaOneclickToggle()
     {
         var toolbar = document.getElementById("bfa-toolbar");
-        var oneclickBtn = document.getElementById("bfa-oneclick-toggle");
-        var directreverseBtn = document.getElementById("bfa-directreverse-toggle");
-
         if (toolbar.classList.contains("bfa-oneclick-on")) {
-            bfaOneclickUnbind();
-            oneclickBtn.innerHTML = "One-click OFF";
-            toolbar.classList.remove("bfa-oneclick-on");
-            directreverseBtn.classList.add("hidden");
-
+            bfaOneclickDisable();
         } else {
-            bfaOneclickBind();
-            oneclickBtn.innerHTML = "One-click ON";
-            toolbar.classList.add("bfa-oneclick-on");
-            directreverseBtn.classList.remove("hidden");
+            bfaOneclickEnable();
         }
-
-        // Every time oneclick is enabled/disabled
-        // also (re)set direct betting to true
-        bfaDirectreverseToggle(null, true);
     }
 
 
@@ -148,9 +165,9 @@
     {
         var toolbar = document.getElementById("bfa-toolbar");
         if (toolbar.classList.contains("bfa-oneclick-on")) {
-            bfaOneclickBind();
+            bfaOneclickEnable();
         } else {
-            bfaOneclickUnbind();
+            bfaOneclickDisable();
         }
     }
 

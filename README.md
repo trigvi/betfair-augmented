@@ -6,11 +6,11 @@ This bookmarklet adds extra features to the Betfair desktop website:
 
 ## How it works
 
-* Add bookmarklet to your browser (you need to do it only once).
-* Switch to a Betfair market.
-* Click bookmarklet to add our toolbar.
-* Adjust your stake and start betting.
+* Add bookmarklet to your browser (once only)
+* Switch to a Betfair market
+* Click bookmarklet to insert our toolbar
+* Adjust your stake and start betting
 
 ## Click on the picture for a video example
 
-Work in progress
+[![Video example link](https://i.imgur.com/h8FWbbA.png)](https://www.youtube.com/watch?v=dnIvn-RUPEU)
