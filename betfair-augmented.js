@@ -89,8 +89,8 @@
 
     //------------------------------------------------
 
-    function bfaOneclickEnable(forceDirect=false)
-    {
+    function bfaOneclickEnable(forceDirect=false) {
+
         var toolbar = document.getElementById("bfa-toolbar");
         var oneclickBtn = document.getElementById("bfa-oneclick-toggle");
         var directreverseBtn = document.getElementById("bfa-directreverse-toggle");
@@ -114,13 +114,14 @@
         if (forceDirect) {
             bfaDirectreverseToggle(null, true);
         }
+
     }
 
 
     //------------------------------------------------
 
-    function bfaOneclickDisable()
-    {
+    function bfaOneclickDisable() {
+
         var toolbar = document.getElementById("bfa-toolbar");
         var oneclickBtn = document.getElementById("bfa-oneclick-toggle");
         var directreverseBtn = document.getElementById("bfa-directreverse-toggle");
@@ -143,39 +144,42 @@
         // default functionality, which doesn't
         // support "Reverse"
         bfaDirectreverseToggle(null, true);
+
     }
 
 
     //------------------------------------------------
 
-    function bfaOneclickToggle()
-    {
+    function bfaOneclickToggle() {
+
         var toolbar = document.getElementById("bfa-toolbar");
         if (toolbar.classList.contains("bfa-oneclick-on")) {
             bfaOneclickDisable();
         } else {
             bfaOneclickEnable();
         }
+
     }
 
 
     //------------------------------------------------
 
-    function bfaOneclickRefresh()
-    {
+    function bfaOneclickRefresh() {
+
         var toolbar = document.getElementById("bfa-toolbar");
         if (toolbar.classList.contains("bfa-oneclick-on")) {
             bfaOneclickEnable();
         } else {
             bfaOneclickDisable();
         }
+
     }
 
 
     //------------------------------------------------
 
-    function bfaOneclickListener(event)
-    {
+    function bfaOneclickListener(event) {
+
         var cell = event.currentTarget;
 
         try {
@@ -213,13 +217,14 @@
         bfaPlaceBetAnyStake(marketId, selectionId, handicap, stake, price, side);
         setTimeout(bfaClearBetslip, 500);
         setTimeout(bfaClearBetslip, 2000);
+
     }
 
 
     //------------------------------------------------
 
-    function bfaDirectreverseToggle(event, forceDirect=false)
-    {
+    function bfaDirectreverseToggle(event, forceDirect=false) {
+
         var button = document.getElementById("bfa-directreverse-toggle");
 
         // Toggle button
@@ -233,25 +238,28 @@
         }
 
         bfaDirectreverseRefresh()
+
     }
 
 
     //------------------------------------------------
 
-    function bfaDirectreverseRefresh()
-    {
+    function bfaDirectreverseRefresh() {
+
         var button = document.getElementById("bfa-directreverse-toggle");
         if (button.classList.contains("bfa-direct")) {
             bfaSetCellColours(true);
         } else {
             bfaSetCellColours(false);
         }
+
     }
 
 
     //------------------------------------------------
 
     function bfaClearBetslip() {
+
         var allButtons = document.querySelectorAll("button");
         for (var i=0; i<allButtons.length; i++) {
             var button = allButtons[i];
@@ -259,13 +267,14 @@
                 button.click();
             }
         }            
+
     }
 
 
     //------------------------------------------------
 
-    function bfaGetMarketId()
-    {
+    function bfaGetMarketId() {
+
         try {
             var chartLinks = document.querySelectorAll("button[market-id]");
             var marketId = chartLinks[0].getAttribute("market-id");
@@ -278,22 +287,24 @@
         }
 
         return marketId;
+
     }
 
 
     //------------------------------------------------
 
-    function bfaIsDirect()
-    {
+    function bfaIsDirect() {
+
         var button = document.getElementById("bfa-directreverse-toggle");
         return button.classList.contains("bfa-direct");
+
     }
 
 
     //------------------------------------------------
 
-    function bfaSetCellColours(isDirect=true)
-    {
+    function bfaSetCellColours(isDirect=true) {
+
         var backCells = document.querySelectorAll(".back-button");
         var layCells = document.querySelectorAll(".lay-button");
 
@@ -324,13 +335,14 @@
                 }
             }
         }
+
     }
 
 
     //------------------------------------------------
 
-    async function bfaPlaceBetAnyStake(marketId, selectionId, handicap, stake, price, side)
-    {
+    async function bfaPlaceBetAnyStake(marketId, selectionId, handicap, stake, price, side) {
+
         var payout = stake * (price - 1);
 
         if (stake >= 2 || payout >= 10) {
@@ -350,13 +362,14 @@
         }
 
         document.querySelectorAll(".refresh-btn")[0].click();
+
     }
 
 
     //------------------------------------------------
 
-    async function bfaPlaceBet(marketId, selectionId, handicap, stake, price, side)
-    {
+    async function bfaPlaceBet(marketId, selectionId, handicap, stake, price, side) {
+
         var requestBody = [{
             "method": "ExchangeTransactional/v1.0/place",
             "params": {
@@ -383,13 +396,14 @@
         try {
             return responseBody[0].result.instructionReports[0].betId;
         } catch (err) {}
+
     }
 
 
     //------------------------------------------------
 
-    async function bfaUpdateBet(marketId, betId, newPrice)
-    {
+    async function bfaUpdateBet(marketId, betId, newPrice) {
+
         var requestBody = [{
             "method": "ExchangeTransactional/v1.0/replace",
             "params": {
@@ -408,13 +422,14 @@
         try {
             return responseBody[0].result.instructionReports[0].placeInstructionReport.betId;
         } catch (err) {}
+
     }
 
 
     //------------------------------------------------
 
-    async function bfaCancelBet(marketId, betId)
-    {
+    async function bfaCancelBet(marketId, betId) {
+
         var requestBody = [{
             "method": "ExchangeTransactional/v1.0/cancel",
             "params": {
@@ -428,13 +443,14 @@
         }];
 
         await bfaRpc("POST", requestBody);
+
     }
 
 
     //------------------------------------------------
 
-    async function bfaRpc(method, requestBody=[])
-    {
+    async function bfaRpc(method, requestBody=[]) {
+
         try {
 
             var response = await fetch("https://etx.betfair.com/www/etx-json-rpc?_ak=nzIFcwyWhrlwYMrh&alt=json", {
@@ -457,6 +473,7 @@
             console.log("BFA ERROR - " + err);
             return;
         }
+
     }
 
 
